@@ -1,8 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Input, Button, VStack, FormControl, FormLabel, Text, Image, Divider } from '@chakra-ui/react';
-import axios from 'axios';
-import { useDropzone } from 'react-dropzone';
-import PredictionBar from '../components/PredictionBar';
+import React, { useState, useEffect } from "react";
+import {
+  Box,
+  Input,
+  Button,
+  VStack,
+  FormControl,
+  FormLabel,
+  Text,
+  Image,
+  Divider,
+} from "@chakra-ui/react";
+import axios from "axios";
+import { useDropzone } from "react-dropzone";
+import PredictionBar from "../components/PredictionBar";
 
 interface Prediction {
   probability: number;
@@ -11,7 +21,7 @@ interface Prediction {
 }
 
 const CustomVision: React.FC = () => {
-  const [imageUrl, setImageUrl] = useState('');
+  const [imageUrl, setImageUrl] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [predictions, setPredictions] = useState<Prediction[]>([]);
   const [filePreview, setFilePreview] = useState<string | null>(null);
@@ -22,10 +32,10 @@ const CustomVision: React.FC = () => {
 
   const handleUrlSubmit = async () => {
     try {
-      const response = await axios.post('/api/url', { "url": imageUrl });
+      const response = await axios.post("/api/url", { url: imageUrl });
       setPredictions(response.data.predictions);
     } catch (error) {
-      console.error('Error submitting URL:', error);
+      console.error("Error submitting URL:", error);
     }
   };
 
@@ -40,19 +50,26 @@ const CustomVision: React.FC = () => {
   const handleFileSubmit = async () => {
     if (selectedFile) {
       try {
-        const response = await axios.post('/api/image', selectedFile, {
+        const response = await axios.post("/api/image", selectedFile, {
           headers: {
-            'Content-Type': 'application/octet-stream'
-          }
+            "Content-Type": "application/octet-stream",
+          },
         });
         setPredictions(response.data.predictions);
       } catch (error) {
-        console.error('Error submitting file:', error);
+        console.error("Error submitting file:", error);
       }
     }
   };
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, accept: 'image/*' });
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      "image/png": [".png"],
+      "image/jpg": [".jpg"],
+      "image/jpeg": [".jpeg"],
+    },
+  });
 
   useEffect(() => {
     return () => {
@@ -77,9 +94,14 @@ const CustomVision: React.FC = () => {
           </Button>
         </FormControl>
 
-        {imageUrl && (          
+        {imageUrl && (
           <Box>
-            <Image src={imageUrl} alt="Selected URL preview" boxSize={300} objectFit="cover" />
+            <Image
+              src={imageUrl}
+              alt="Selected URL preview"
+              boxSize={300}
+              objectFit="cover"
+            />
           </Box>
         )}
 
@@ -101,7 +123,14 @@ const CustomVision: React.FC = () => {
             {isDragActive ? (
               <Text>Drop the files here...</Text>
             ) : selectedFile ? (
-              <Image src={filePreview} alt="Selected file preview" boxSize="100%" objectFit="cover" maxHeight={300} width={"auto"}/>
+              <Image
+                src={filePreview!}
+                alt="Selected file preview"
+                boxSize="100%"
+                objectFit="cover"
+                maxHeight={300}
+                width={"auto"}
+              />
             ) : (
               <Text>Drag & drop some files here, or click to select files</Text>
             )}

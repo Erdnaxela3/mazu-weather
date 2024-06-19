@@ -1,0 +1,24 @@
+services:
+  weather-backend:
+    container_name: weather-backend
+    hostname: weather-backend
+    build:
+      context: ./weather-backend
+    ports:
+      - "8730:80"
+    networks:
+      - weather-network
+  
+  weather-frontend:
+    container_name: weather-frontend
+    hostname: weather-frontend
+    build:
+      context: ./weather-frontend
+    ports:
+      - "6510:4173"
+      - "80:80"
+    networks:
+      - weather-network
+
+networks:
+  weather-network:

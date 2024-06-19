@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:6510',
+        target: 'http://weather-backend:80',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
