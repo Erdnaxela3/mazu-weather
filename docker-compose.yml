@@ -2,23 +2,35 @@ services:
   weather-backend:
     container_name: weather-backend
     hostname: weather-backend
+    # image: {your_registry}.azurecr.io/samples/weather-backend:latest
     build:
       context: ./weather-backend
-    ports:
-      - "8730:80"
     networks:
       - weather-network
   
   weather-frontend:
     container_name: weather-frontend
     hostname: weather-frontend
+    # image: {your_registry}.azurecr.io/samples/weather-frontend:latest
     build:
       context: ./weather-frontend
-    ports:
-      - "6510:4173"
-      - "80:80"
     networks:
       - weather-network
+  
+  weather-nginx:
+    container_name: weather-nginx
+    hostname: weather-nginx
+    # image: {your_registry}.azurecr.io/samples/weather-nginx:latest
+    build:
+      context: ./weather-nginx
+    networks:
+      - weather-network
+    ports:
+      - "8080:8080"
+      - "443:443"
+    depends_on:
+      - weather-backend
+      - weather-frontend
 
 networks:
   weather-network:
