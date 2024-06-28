@@ -2,8 +2,8 @@ services:
   weather-backend:
     container_name: weather-backend
     hostname: weather-backend
-    # image: {your_registry}.azurecr.io/samples/weather-backend:latest
-    image: weather:latest
+    # image: aw19062024.azurecr.io/samples/weather-backend:latest
+    image: weather-backend:latest
     build:
       context: ./weather-backend
     networks:
@@ -12,7 +12,7 @@ services:
   weather-frontend:
     container_name: weather-frontend
     hostname: weather-frontend
-    # image: {your_registry}.azurecr.io/samples/weather-frontend:latest
+    # image: aw19062024.azurecr.io/samples/weather-frontend:latest
     image: weather-frontend:latest
     build:
       context: ./weather-frontend
@@ -22,7 +22,7 @@ services:
   weather-nginx:
     container_name: weather-nginx
     hostname: weather-nginx
-    # image: {your_registry}.azurecr.io/samples/weather-nginx:latest
+    # image: aw19062024.azurecr.io/samples/weather-nginx:latest
     image: weather-nginx:latest
     build:
       context: ./weather-nginx
