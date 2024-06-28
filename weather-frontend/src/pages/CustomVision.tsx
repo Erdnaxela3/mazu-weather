@@ -9,6 +9,7 @@ import {
   Text,
   Image,
   Divider,
+  Switch,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useDropzone } from "react-dropzone";
@@ -25,6 +26,9 @@ const CustomVision: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [predictions, setPredictions] = useState<Prediction[]>([]);
   const [filePreview, setFilePreview] = useState<string | null>(null);
+  const [useCustomVisionEndpoints, setUseLocal] = useState(false);
+  const [predictionUrl, setPredictionUrl] = useState<string>("");
+  const [predictionKey, setPredictionKey] = useState<string>("");
 
   const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setImageUrl(e.target.value);
@@ -32,8 +36,26 @@ const CustomVision: React.FC = () => {
 
   const handleUrlSubmit = async () => {
     try {
-      const response = await axios.post("/api/url", { url: imageUrl });
-      setPredictions(response.data.predictions);
+      const url = useCustomVisionEndpoints
+        ? predictionUrl + "/url"
+        : "/api/url";
+
+      if (useCustomVisionEndpoints) {
+        const response = await axios.post(
+          url,
+          { url: imageUrl },
+          {
+            headers: {
+              "Prediction-Key": predictionKey,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        setPredictions(response.data.predictions);
+      } else {
+        const response = await axios.post(url, { url: imageUrl });
+        setPredictions(response.data.predictions);
+      }
     } catch (error) {
       console.error("Error submitting URL:", error);
     }
@@ -50,10 +72,22 @@ const CustomVision: React.FC = () => {
   const handleFileSubmit = async () => {
     if (selectedFile) {
       try {
-        const response = await axios.post("/api/image", selectedFile, {
-          headers: {
+        const url = useCustomVisionEndpoints
+          ? predictionUrl + "/image"
+          : "/api/image";
+        let headers = {
+          "Content-Type": "application/octet-stream",
+        };
+
+        if (useCustomVisionEndpoints) {
+          headers = {
             "Content-Type": "application/octet-stream",
-          },
+            "Prediction-Key": predictionKey,
+          };
+        }
+
+        const response = await axios.post(url, selectedFile, {
+          headers: headers,
         });
         setPredictions(response.data.predictions);
       } catch (error) {
@@ -82,6 +116,36 @@ const CustomVision: React.FC = () => {
   return (
     <Box p={4}>
       <VStack spacing={4} mt={4}>
+        <Switch
+          colorScheme="teal"
+          isChecked={useCustomVisionEndpoints}
+          onChange={() => setUseLocal(!useCustomVisionEndpoints)}
+        >
+          Use Custom Vision Endpoints
+        </Switch>
+
+        {useCustomVisionEndpoints && (
+          <Box>
+            <FormControl>
+              <FormLabel>Prediction URL</FormLabel>
+              <Input
+                placeholder="Enter prediction URL"
+                value={predictionUrl}
+                onChange={(e) => setPredictionUrl(e.target.value)}
+              />
+            </FormControl>
+
+            <FormControl>
+              <FormLabel>Prediction Key</FormLabel>
+              <Input
+                placeholder="Enter prediction key"
+                value={predictionKey}
+                onChange={(e) => setPredictionKey(e.target.value)}
+              />
+            </FormControl>
+          </Box>
+        )}
+
         <FormControl>
           <FormLabel>Image URL</FormLabel>
           <Input

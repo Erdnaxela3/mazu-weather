@@ -65,7 +65,7 @@ const MachineLearning: React.FC = () => {
           value={inputs.TempMax}
           onChange={handleInputChange}
         />
-        <Text>Miniimum Temperature</Text>
+        <Text>Minimum Temperature</Text>
         <Input
           type="number"
           placeholder="Minimum Temperature"
