@@ -1,2 +1,4 @@
-cigar
-saucer
+cloudy
+rain
+shine
+sunrise

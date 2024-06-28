@@ -2,10 +2,8 @@ import datetime
 import logging
 import pathlib
 import urllib.request
-
 import numpy as np
 import PIL.Image
-
 try:
     import tflite_runtime.interpreter as tflite
 except ImportError:
@@ -13,8 +11,8 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 global_predictor = None
-MODEL_PATH = pathlib.Path("model.tflite")
-LABELS_PATH = pathlib.Path("labels.txt")
+MODEL_PATH = pathlib.Path('model.tflite')
+LABELS_PATH = pathlib.Path('labels.txt')
 IS_BGR = False
 
 
@@ -28,10 +26,10 @@ class Predictor:
         output_details = self._interpreter.get_output_details()
         assert len(input_details) == 1
         assert len(output_details) == 1
-        self._input_index = input_details[0]["index"]
-        self._output_index = output_details[0]["index"]
+        self._input_index = input_details[0]['index']
+        self._output_index = output_details[0]['index']
 
-        input_size = int(input_details[0]["shape"][1])
+        input_size = int(input_details[0]['shape'][1])
         logger.debug(f"Model input size: {input_size}")
         self._preprocessor = Preprocessor(input_size, is_bgr=IS_BGR)
 
@@ -64,7 +62,7 @@ class Preprocessor:
         image = self._resize_keep_aspect_ratio(image)
         image = self._crop_center(image)
 
-        image = image.convert("RGB") if image.mode != "RGB" else image
+        image = image.convert('RGB') if image.mode != 'RGB' else image
         np_array = np.array(image, dtype=np.float32)
         if self._is_bgr:
             np_array = np_array[:, :, (2, 1, 0)]
@@ -72,7 +70,7 @@ class Preprocessor:
 
     def _update_orientation(self, image: PIL.Image.Image):
         exif_orientation_tag = 0x0112
-        if hasattr(image, "_getexif"):
+        if hasattr(image, '_getexif'):
             exif = image._getexif()
             if exif is not None and exif_orientation_tag in exif:
                 orientation = exif.get(exif_orientation_tag, 1)
@@ -116,17 +114,8 @@ def predict_image(pil_image):
     global global_predictor
     assert global_predictor is not None
     outputs = global_predictor.predict(pil_image)
-    predictions = [
-        {"tagName": label, "probability": round(p, 8), "tagId": "", "boundingBox": None}
-        for label, p in zip(global_predictor.labels, outputs)
-    ]
-    response = {
-        "id": "",
-        "project": "",
-        "iteration": "",
-        "created": datetime.datetime.utcnow().isoformat(),
-        "predictions": predictions,
-    }
+    predictions = [{'tagName': label, 'probability': round(p, 8), 'tagId': '', 'boundingBox': None} for label, p in zip(global_predictor.labels, outputs)]
+    response = {'id': '', 'project': '', 'iteration': '', 'created': datetime.datetime.utcnow().isoformat(), 'predictions': predictions}
 
     return response
 
