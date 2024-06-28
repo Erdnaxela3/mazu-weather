@@ -82,6 +82,7 @@ const CustomVision: React.FC = () => {
         if (useCustomVisionEndpoints) {
           headers = {
             "Content-Type": "application/octet-stream",
+            // @ts-ignore
             "Prediction-Key": predictionKey,
           };
         }
