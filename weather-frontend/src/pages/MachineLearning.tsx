@@ -1,26 +1,22 @@
 import React, { useState } from "react";
-import { Box, Heading, Input, Button, VStack, Text, Menu, MenuButton, MenuList, MenuItem } from "@chakra-ui/react";
+import { Box, Heading, Input, Button, VStack, Text} from "@chakra-ui/react";
 import axios from "axios";
 
 const MachineLearning: React.FC = () => {
   const [inputs, setInputs] = useState({
-    Pclass: 0,
-    Sex: "",
-    Age: 0,
-    Fare: 0,
+    Precipitation: 0,
+    TempMax: 0,
+    TempMin: 0,
+    Wind: 0,
   });
   const [predictionResult, setPredictionResult] = useState<number | null>(null);
 
-  const url = "";
-  const apiKey = '';
+  const url = "http://8f6650a1-f59e-4543-84a5-05470e248b34.westeurope.azurecontainer.io/score";
+  const apiKey = 'fbYGlhWkPF2yCXNGqjLaHDMyIRglMkx8';
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setInputs({ ...inputs, [name]: value });
-  };
-
-  const handleSexSelection = (sex: string) => {
-    setInputs({ ...inputs, Sex: sex });
   };
 
   const handleFormSubmit = async () => {
@@ -28,23 +24,21 @@ const MachineLearning: React.FC = () => {
       const headers = {
         "Content-Type": "application/json",
         Authorization: `Bearer ${apiKey}`,
-        'Access-Control-Allow-Origin': '*',
       };
-
       const formattedInputs = {"Inputs": {
         "input1": [
           {
-            "Pclass": inputs.Pclass,
-            "Sex": inputs.Sex,
-            "Age": inputs.Age,
-            "Fare": inputs.Fare,
+            "precipitation": inputs.Precipitation,
+            "temp_max": inputs.TempMax,
+            "temp_min": inputs.TempMin,
+            "wind": inputs.Wind,
           }
         ]
       }};
 
       const response = await axios.post(url, formattedInputs, { headers });
-      const { Survived } = response.data.Results.WebServiceOutput0[0];
-      setPredictionResult(Survived);
+      const Sunny = response.data.Results.WebServiceOutput0[0]["Scored Labels"];
+      setPredictionResult(Sunny);
     } catch (error) {
       console.error("Error submitting form:", error);
     }
@@ -55,38 +49,36 @@ const MachineLearning: React.FC = () => {
       <Heading>Machine Learning Form</Heading>
       <VStack mt={4}>
         <Text fontWeight="bold">Enter the following details:</Text>
-        <Text>Pclass: 1, 2, or 3</Text>
+        <Text>Precipitation 1 to 50</Text>
         <Input
           type="number"
-          placeholder="Pclass"
-          name="Pclass"
-          value={inputs.Pclass}
+          placeholder="Precipitation"
+          name="Precipitation"
+          value={inputs.Precipitation}
           onChange={handleInputChange}
         />
-        <Text>Sex M or F</Text>
-        <Menu>
-          <MenuButton as={Button} colorScheme="teal">
-            Sex
-          </MenuButton>
-          <MenuList>
-          <MenuItem onClick={() => handleSexSelection('M')}>M</MenuItem>
-          <MenuItem onClick={() => handleSexSelection('F')}>F</MenuItem>
-          </MenuList>
-        </Menu>
-        <Text>Age</Text>
+        <Text>Maximum Temperature</Text>
         <Input
           type="number"
-          placeholder="Age"
-          name="Age"
-          value={inputs.Age}
+          placeholder="Maximum Temperature"
+          name="TempMax"
+          value={inputs.TempMax}
           onChange={handleInputChange}
         />
-        <Text>Fare</Text>
+        <Text>Miniimum Temperature</Text>
         <Input
           type="number"
-          placeholder="Fare"
-          name="Fare"
-          value={inputs.Fare}
+          placeholder="Minimum Temperature"
+          name="TempMin"
+          value={inputs.TempMin}
+          onChange={handleInputChange}
+        />
+        <Text>Wind speed</Text>
+        <Input
+          type="number"
+          placeholder="Wind speed"
+          name="Wind"
+          value={inputs.Wind}
           onChange={handleInputChange}
         />
         <Button colorScheme="teal" onClick={handleFormSubmit}>
@@ -95,7 +87,7 @@ const MachineLearning: React.FC = () => {
         {predictionResult !== null && (
           <Box>
             <Text fontWeight="bold">Prediction Result:</Text>
-            <Text>{`Survived: ${predictionResult}`}</Text>
+            <Text>{`Sunny weather: ${predictionResult}`}</Text>
           </Box>
         )}
       </VStack>
